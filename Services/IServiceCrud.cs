@@ -50,7 +50,7 @@ namespace Services
 
 		void DeleteCache(string key);
 
-		T GetCache(string key);
+		object GetCache(string key);
 
 		void SaveCache(string key, T obj);
 	}

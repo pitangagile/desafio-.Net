@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domains;
 using Infrastructure;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace Services
@@ -30,38 +31,15 @@ namespace Services
 			return string.Concat(key.ToLower(), ":", this.Name.ToLower());
 		}
 
-		private HashEntry[] GenerateHash(T obj)
+		private string GenerateHash(T obj)
 		{
-			var hash = new List<HashEntry>();
-
-			foreach (PropertyInfo info in this.Properties)
-			{
-				if (!info.GetValue(obj).IsNull())
-				{
-					hash.Add(new HashEntry(info.Name, info.GetValue(obj).ToString()));
-				}
-			}
-
-			return hash.ToArray();
+			return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 		}
 
-		private T MapFromHash(HashEntry[] hash)
+		private T MapFromHash(string hash)
 		{
-			var obj = (T)Activator.CreateInstance(this.Type);
-			var props = this.Properties;
+			var obj = JsonConvert.DeserializeObject<T>(hash, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 
-			foreach (PropertyInfo info in props)
-			{
-				var propertyFinded = hash.FirstOrDefault(h => h.Name == info.Name && h.Value.IsNull() == false);
-				if (!propertyFinded.Value.IsNull)
-				{
-					if (!info.PropertyType.IsConstructedGenericType) {
-						var insertedValue = hash.FirstOrDefault(h => h.Name == info.Name).Value;
-						info.SetValue(obj, Convert.ChangeType(insertedValue, info.PropertyType));
-					}
-				}
-			}
-			
 			return obj;
 		}
 
@@ -73,10 +51,15 @@ namespace Services
 			_dB.KeyDelete(key);
 		}
 
-		public T GetCache(string key)
+		public object GetCache(string key)
 		{
 			key = this.GenerateKey(key);
-			var hash = _dB.HashGetAll(key);
+			var hash = _dB.StringGet(key);
+
+			if (hash.IsNull)
+			{
+				return null;
+			}
 			return this.MapFromHash(hash);
 		}
 
@@ -89,7 +72,7 @@ namespace Services
 
 				if (_dB.HashLength(key) == 0)
 				{
-					_dB.HashSet(key, hash);
+					_dB.StringSet(key, hash);
 				}
 				else
 				{

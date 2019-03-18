@@ -72,17 +72,17 @@ namespace DesafioDotNET
 		public async Task<IActionResult> LoginAsync([FromBody] SigninDto dto, [FromServices]SigningConfigurations signingConfigurations, [FromServices]TokenConfigurations tokenConfigurations, [FromServices] IApplicationUserService userService, [FromServices] IValidator<SigninDto> validatorSignin)
 		{
 			//await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-			ApplicationUser cache = this._service.GetCache(dto.Email);
+			var cache = this._service.GetCache(dto.Email);
 
 			var validated = await validatorSignin.ValidateAsync(dto);
 
 			if (!validated.IsValid)
 				return UnprocessableEntity(validated.Errors.Select(e => new { message = e.ErrorMessage, statusCode = e.ErrorCode }).Distinct());
 
-			if (!string.IsNullOrWhiteSpace(cache.Email))
+			if (!cache.IsNull())
 			{
 				var response = this._mapper.Map<ApplicationUserDto>(cache);
-				return GenerateResultToken(cache, signingConfigurations, tokenConfigurations, response);
+				return GenerateResultToken((ApplicationUser)cache, signingConfigurations, tokenConfigurations, response);
 			}
 
 			var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, true, false);
@@ -94,8 +94,8 @@ namespace DesafioDotNET
 				{
 					return NotFound(new { message = "User Not Found", statusCode = 404 });
 				}
-				//user.LastLogin = DateTime.Now;
-				//await userService.UpdateAsync(user, user.Id);
+				user.LastLogin = DateTime.Now;
+				await userService.UpdateAsync(user, user.Id);
 
 				var response = this._mapper.Map<ApplicationUserDto>(user);
 				this._service.SaveCache(user.Email, user);

@@ -17,11 +17,6 @@ using System.Threading.Tasks;
 
 namespace DesafioDotNET
 {
-	[AllowAnonymous]
-	[EnableCors("FrontEnd")]
-	[Produces("application/json")]
-	[Route("api/[controller]")]
-	[ApiController]
 	public class AuthenticationController : BaseController
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
@@ -108,6 +103,13 @@ namespace DesafioDotNET
 		[HttpPost("me")]
 		public async Task<IActionResult> Me([FromQuery(Name = "email")] string email, [FromServices] IApplicationUserService userService)
 		{
+			var cache = this._service.GetCache(email);
+			if (!cache.IsNull())
+			{
+				var response = this._mapper.Map<ApplicationUserDto>(cache);
+				return Ok(response);
+			}
+
 			var user = (await userService.GetAllIncludingAsync((e => e.Phones))).SingleOrDefault(e => e.Email.ToUpper() == email.ToUpper());
 			var result = _mapper.Map<ApplicationUserDto>(user);
 

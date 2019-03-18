@@ -3,14 +3,20 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Data;
-using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using System;
 using AutoMapper;
 using Mapping;
 using Services;
+using Infrastructure;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace DesafioDotNET
 {
@@ -36,8 +42,18 @@ namespace DesafioDotNET
             services.AddValidators();
             services.AddGlobalExceptionHandlerMiddleware();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.Configure<Infrastructure.RedisConfiguration>(Configuration.GetSection("Redis"));
 
-            var configMapper = new MapperConfiguration(c =>
+			services.AddDistributedRedisCache(options =>
+			{
+				options.InstanceName = Configuration.GetValue<string>("Redis:Name");
+				options.Configuration = Configuration.GetValue<string>("Redis:Host");
+			});
+
+			services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+			services.AddSession();
+
+			var configMapper = new MapperConfiguration(c =>
             {
                 c.AddProfile(new ApplicationMapping());
             });
@@ -53,9 +69,10 @@ namespace DesafioDotNET
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseDefaultFiles();
+			app.UseSession();
             app.UseStaticFiles();
 
-            app.UseAuthentication();
+			app.UseAuthentication();
             app.UseCors("FrontEnd");
 
             if (env.IsDevelopment())

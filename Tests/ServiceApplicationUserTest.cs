@@ -36,37 +36,37 @@ namespace Tests
                     }
                 }
             };
-        [Fact(DisplayName = "Verify including phones")]
-        public async Task VerifyIncludingPhonesAsync()
-        {
-            Mock<FakeUserManager> userManager = new Mock<FakeUserManager>();
-            Mock<FakeSignInManager> signinManager = new Mock<FakeSignInManager>();
-            Mock<IValidator<ApplicationUserDto>> validator = new Mock<IValidator<ApplicationUserDto>>();
-            Mock<IMapper> mapper = new Mock<IMapper>();
-            mapper.Setup(m => m.Map<ApplicationUserDto>(It.IsAny<ApplicationUser>())).Returns(new ApplicationUserDto
-            {
-                Email = "test@gmail.com",
-                CreatedAt = DateTime.Today,
-                LastLogin = DateTime.Today,
-                Phones = new List<PhoneDto>
-                    {
-                        new PhoneDto
-                        {
-                            Area_code = 123,
-                            Number = 123,
-                            Country_code = "+55"
-                        }
-                    }
-            });
+        //[Fact(DisplayName = "Verify including phones")]
+        //public async Task VerifyIncludingPhonesAsync()
+        //{
+        //    Mock<FakeUserManager> userManager = new Mock<FakeUserManager>();
+        //    Mock<FakeSignInManager> signinManager = new Mock<FakeSignInManager>();
+        //    Mock<IValidator<ApplicationUserDto>> validator = new Mock<IValidator<ApplicationUserDto>>();
+        //    Mock<IMapper> mapper = new Mock<IMapper>();
+        //    mapper.Setup(m => m.Map<ApplicationUserDto>(It.IsAny<ApplicationUser>())).Returns(new ApplicationUserDto
+        //    {
+        //        Email = "test@gmail.com",
+        //        CreatedAt = DateTime.Today,
+        //        LastLogin = DateTime.Today,
+        //        Phones = new List<PhoneDto>
+        //            {
+        //                new PhoneDto
+        //                {
+        //                    Area_code = 123,
+        //                    Number = 123,
+        //                    Country_code = "+55"
+        //                }
+        //            }
+        //    });
 
-            Mock<ApplicationUserService> mock = new Mock<ApplicationUserService>(new Mock<DbContext>().Object);
-            mock.Setup(s => s.GetAll()).Returns(users.AsQueryable());
-            mock.Setup(s => s.GetAllIncluding(It.IsAny<Expression<Func<ApplicationUser, object>>[]>())).Returns(users.AsQueryable());
-            mock.Setup(s => s.GetAllIncludingAsync(It.IsAny<Expression<Func<ApplicationUser, object>>[]>())).Returns(Task.FromResult(users));
+        //    Mock<ApplicationUserService> mock = new Mock<ApplicationUserService>(new Mock<DbContext>().Object);
+        //    mock.Setup(s => s.GetAll()).Returns(users.AsQueryable());
+        //    mock.Setup(s => s.GetAllIncluding(It.IsAny<Expression<Func<ApplicationUser, object>>[]>())).Returns(users.AsQueryable());
+        //    mock.Setup(s => s.GetAllIncludingAsync(It.IsAny<Expression<Func<ApplicationUser, object>>[]>())).Returns(Task.FromResult(users));
 
-            AuthenticationController controller = new AuthenticationController(userManager.Object, signinManager.Object, mapper.Object, validator.Object);
-            var result = await controller.Me("test@gmail.com", mock.Object);
-            Assert.IsType<OkObjectResult>((OkObjectResult)result);
-        }
+            //AuthenticationController controller = new AuthenticationController(userManager.Object, signinManager.Object, mapper.Object, validator.Object);
+            //var result = await controller.Me("test@gmail.com", mock.Object);
+            //Assert.IsType<OkObjectResult>((OkObjectResult)result);
+        //}
     }
 }

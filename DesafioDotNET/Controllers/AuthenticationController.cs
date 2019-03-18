@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Domains;
 using FluentValidation;
+using Infrastructure;
 using Mapping;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 using Services;
 using System;
 using System.Linq;
@@ -14,24 +17,23 @@ using System.Threading.Tasks;
 
 namespace DesafioDotNET
 {
-    [AllowAnonymous]
-    [EnableCors("FrontEnd")]
-    [Produces("application/json")]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthenticationController : Controller
+    public class AuthenticationController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IMapper _mapper;
         protected readonly IValidator _validator;
+		private readonly IApplicationUserService _service;
 
-        public AuthenticationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMapper mapper, IValidator<ApplicationUserDto> validator)
+		public AuthenticationController(IApplicationUserService service, UserManager<ApplicationUser> userManager, 
+			SignInManager<ApplicationUser> signInManager, IMapper mapper, IValidator<ApplicationUserDto> validator, 
+			IOptions<RedisConfiguration> redis, IDistributedCache cache, IRedisConnectionFactory factory) : base(redis, cache, factory)
         {
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._mapper = mapper;
             this._validator = validator;
+			this._service = service;
         }
 
         [HttpPost("signup")]
@@ -80,8 +82,8 @@ namespace DesafioDotNET
                 {
                     return NotFound(new { message = "User Not Found", statusCode = 404 });
                 }
-                user.LastLogin = DateTime.Now;
-                await userService.UpdateAsync(user, user.Id);
+                //user.LastLogin = DateTime.Now;
+                //await userService.UpdateAsync(user, user.Id);
 
                 var response = this._mapper.Map<ApplicationUserDto>(user);
                 var objectToken = user.GenerateToken(tokenConfigurations, signingConfigurations);

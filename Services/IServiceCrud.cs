@@ -1,4 +1,5 @@
 ﻿using Domains;
+using Infrastructure;
 using Services.Base;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace Services
 {
     public interface IServiceCrud<T> : IServiceCrud where T : IBaseDomain
-    {
+	{
         T Insert(T obj);
 
         Task<T> InsertAsync(T obj);

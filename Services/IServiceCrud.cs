@@ -47,5 +47,11 @@ namespace Services
         T Update(T obj, object key);
 
         Task<T> UpdateAsync(T obj, object key);
-    }
+
+		void DeleteCache(string key);
+
+		T GetCache(string key);
+
+		void SaveCache(string key, T obj);
+	}
 }

@@ -12,12 +12,12 @@ namespace Infrastructure
 		
 		public RedisConnectionFactory(IOptions<RedisConfiguration> redis)
 		{
-			this._connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(string.Format("{0}:{1},ssl=true,password={2},allowAdmin=true", redis.Value.Host, redis.Value.Port, redis.Value.Token)));
+			this._connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(string.Format("{0}:{1},password={2},allowAdmin=true", redis.Value.Host, redis.Value.Port, redis.Value.Token)));
 		}
 
 		public ConnectionMultiplexer Connection()
 		{
-			throw new NotImplementedException();
+			return this._connection.Value;
 		}
 	}
 }

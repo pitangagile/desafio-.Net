@@ -18,15 +18,5 @@ namespace DesafioDotNET
 	[ApiController]
 	public class BaseController : Controller
     {
-		protected readonly RedisConfiguration _redis;
-		protected readonly IDistributedCache _cache;
-		protected readonly IRedisConnectionFactory _fact;
-
-		public BaseController(IOptions<RedisConfiguration> redis, IDistributedCache cache, IRedisConnectionFactory factory)
-		{
-			this._cache = cache;
-			this._redis = redis.Value;
-			this._fact = factory;
-		}
     }
 }

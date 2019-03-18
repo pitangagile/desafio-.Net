@@ -13,108 +13,16 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-	public class ApplicationUserService : IApplicationUserService
+	public class ApplicationUserService : BaseServiceRedis<ApplicationUser>, IApplicationUserService
 	{
 		protected readonly DbContext _dbContext;
 		private bool disposed = false;
-		protected readonly IRedisConnectionFactory _connectionFactory;
-		internal readonly IDatabase _dB;
-
-		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory)
+		
+		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory) : base(connectionFactory)
 		{
 			_dbContext = dbContext;
-			_connectionFactory = connectionFactory;
-			_dB = _connectionFactory.Connection().GetDatabase();
 		}
 
-		#region Redis
-		protected string Name => this.Type.Name;
-		protected PropertyInfo[] Properties => this.Type.GetProperties();
-		protected Type Type => typeof(ApplicationUserService);
-
-		protected string GenerateKey(string key)
-		{
-			return string.Concat(key.ToLower(), ":", this.Name.ToLower());
-		}
-
-		protected HashEntry[] GenerateHash(ApplicationUserService obj)
-		{
-			var props = this.Properties;
-			var hash = new HashEntry[props.Length];
-
-			for (var i = 0; i < props.Length; i++)
-				hash[i] = new HashEntry(props[i].Name, props[i].GetValue(obj).ToString());
-
-			return hash;
-		}
-
-		protected ApplicationUserService MapFromHash(HashEntry[] hash)
-		{
-			var obj = (ApplicationUserService)Activator.CreateInstance(this.Type);
-			var props = this.Properties;
-
-			for (var i = 0; i < props.Length; i++)
-			{
-				for (var j = 0; j < hash.Length; j++)
-				{
-					if (props[i].Name == hash[j].Name)
-					{
-						var val = hash[j].Value;
-						var type = props[i].PropertyType;
-
-						if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-							if (string.IsNullOrEmpty(val))
-							{
-								props[i].SetValue(obj, null);
-							}
-						props[i].SetValue(obj, Convert.ChangeType(val, type));
-					}
-				}
-			}
-			return obj;
-		}
-
-		public void Delete(string key)
-		{
-			if (string.IsNullOrWhiteSpace(key) || key.Contains(":")) throw new ArgumentException("invalid key");
-
-			key = this.GenerateKey(key);
-			_dB.KeyDelete(key);
-		}
-
-		public ApplicationUserService Get(string key)
-		{
-			key = this.GenerateKey(key);
-			var hash = _dB.HashGetAll(key);
-			return this.MapFromHash(hash);
-		}
-
-		public void Save(string key, ApplicationUserService obj)
-		{
-			if (obj != null)
-			{
-				var hash = this.GenerateHash(obj);
-				key = this.GenerateKey(key);
-
-				if (_dB.HashLength(key) == 0)
-				{
-					_dB.HashSet(key, hash);
-				}
-				else
-				{
-					var props = this.Properties;
-					foreach (var item in props)
-					{
-						if (_dB.HashExists(key, item.Name))
-						{
-							_dB.HashIncrement(key, item.Name, Convert.ToInt32(item.GetValue(obj)));
-						}
-					}
-				}
-
-			}
-		}
-#endregion
 		public int Count()
 		{
 			return _dbContext.Set<ApplicationUser>().Count();

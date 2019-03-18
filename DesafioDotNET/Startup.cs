@@ -12,11 +12,6 @@ using AutoMapper;
 using Mapping;
 using Services;
 using Infrastructure;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace DesafioDotNET
 {
@@ -42,7 +37,7 @@ namespace DesafioDotNET
             services.AddValidators();
             services.AddGlobalExceptionHandlerMiddleware();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-			services.Configure<Infrastructure.RedisConfiguration>(Configuration.GetSection("Redis"));
+			services.Configure<RedisConfiguration>(Configuration.GetSection("Redis"));
 
 			services.AddDistributedRedisCache(options =>
 			{

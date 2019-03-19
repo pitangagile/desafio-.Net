@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public interface IServiceCrud<T> : IServiceCrud where T : IBaseDomain
+    public interface IServiceCrud<T> : IServiceCrud where T : class
 	{
         T Insert(T obj);
 
         Task<T> InsertAsync(T obj);
 
-        void Delete(T obj);
+        void Delete(object id);
 
-        Task<int> DeleteAsync(T obj);
+        Task<int> DeleteAsync(object id);
 
         T Find(Expression<Func<T, bool>> match);
 
@@ -32,9 +32,9 @@ namespace Services
 
         Task<ICollection<T>> FindByAsync(Expression<Func<T, bool>> predicate);
 
-        T GetById(long id);
+        T GetById(object id);
 
-        Task<T> GetByIdAsync(long id);
+        Task<T> GetByIdAsync(object id);
 
         IQueryable<T> GetAll();
 
@@ -47,11 +47,5 @@ namespace Services
         T Update(T obj, object key);
 
         Task<T> UpdateAsync(T obj, object key);
-
-		void DeleteCache(string key);
-
-		object GetCache(string key);
-
-		void SaveCache(string key, T obj);
 	}
 }

@@ -6,17 +6,20 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Domains;
+using FluentValidation;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Services.Base;
 using StackExchange.Redis;
 
 namespace Services
 {
-	public abstract class BaseServiceRedis<T> where T : IBaseDomain
+	public abstract class BaseServiceRedis<T> where T : class
 	{
-		private string Name => this.Type.Name;
-		private PropertyInfo[] Properties => this.Type.GetProperties();
-		private Type Type => typeof(T);
+		private string Name => this._type.Name;
+		private PropertyInfo[] Properties => this._type.GetProperties();
+		private Type _type => typeof(T);
 		protected readonly IRedisConnectionFactory _connectionFactory;
 		internal readonly IDatabase _dB;
 
@@ -26,6 +29,11 @@ namespace Services
 			_dB = _connectionFactory.Connection().GetDatabase();
 		}
 
+		/// <summary>
+		/// Apply cryptography and descryptography in mapfromhash and generatehash
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
 		private string GenerateKey(string key)
 		{
 			return string.Concat(key.ToLower(), ":", this.Name.ToLower());
@@ -88,5 +96,12 @@ namespace Services
 
 			}
 		}
+
+		public void UpdateCache(string key, T obj)
+		{
+			DeleteCache(key);
+			SaveCache(key, obj);
+		}
+
 	}
 }

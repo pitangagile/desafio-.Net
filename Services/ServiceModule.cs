@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Domains;
 using System;
 
 namespace Services
@@ -8,7 +9,9 @@ namespace Services
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<ApplicationUserService>().As<IApplicationUserService>().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-            base.Load(builder);
+			builder.RegisterType<ApplicationUserService>().As<BaseService<ApplicationUser>>().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+			
+			base.Load(builder);
         }
     }
 }

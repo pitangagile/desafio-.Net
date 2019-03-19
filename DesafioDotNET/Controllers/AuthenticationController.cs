@@ -5,11 +5,8 @@ using Infrastructure;
 using Mapping;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
 using Services;
 using System;
 using System.Linq;
@@ -19,20 +16,17 @@ namespace DesafioDotNET
 {
 	public class AuthenticationController : BaseController
 	{
-		private readonly UserManager<ApplicationUser> _userManager;
-		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly IMapper _mapper;
 		protected readonly IValidator _validator;
 		private readonly IApplicationUserService _service;
+		private readonly BaseService<ApplicationUser> _redis;
 
-		public AuthenticationController(IApplicationUserService service, UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager, IMapper mapper, IValidator<ApplicationUserDto> validator)
+		public AuthenticationController(IApplicationUserService service, IMapper mapper, IValidator<ApplicationUserDto> validator, BaseService<ApplicationUser> redis)
 		{
-			this._userManager = userManager;
-			this._signInManager = signInManager;
 			this._mapper = mapper;
 			this._validator = validator;
 			this._service = service;
+			this._redis = redis;
 		}
 
 		[HttpPost("signup")]
@@ -43,15 +37,11 @@ namespace DesafioDotNET
 				return UnprocessableEntity(validated.Errors.Select(e => new { message = e.ErrorMessage, statusCode = e.ErrorCode }).Distinct());
 
 			var user = this._mapper.Map<ApplicationUser>(dto);
-			user.CreatedAt = DateTime.Now;
-			IdentityResult result = await _userManager.CreateAsync(user, user.Password);
+			IdentityResult result = await _service.CreateAsync(user);
 
 			if (result.Succeeded)
 			{
-				var response = await _userManager.FindByEmailAsync(user.Email);
-				if (response != null)
-					return Ok(new { message = "successful operation", statusCode = 200 });
-				return BadRequest();
+				return Ok(new { message = "successful operation", statusCode = 200 });
 			}
 			return UnprocessableEntity(result.Errors.Where(e => e.Code.ToUpper() == "DuplicateEmail".ToUpper()).Select(e => new { message = "E-mail already exists", statusCode = 422 }).Distinct());
 		}
@@ -66,8 +56,7 @@ namespace DesafioDotNET
 		[HttpPost("signin")]
 		public async Task<IActionResult> LoginAsync([FromBody] SigninDto dto, [FromServices]SigningConfigurations signingConfigurations, [FromServices]TokenConfigurations tokenConfigurations, [FromServices] IApplicationUserService userService, [FromServices] IValidator<SigninDto> validatorSignin)
 		{
-			//await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-			var cache = this._service.GetCache(dto.Email);
+			var cache = this._redis.GetCache(dto.Email);
 
 			var validated = await validatorSignin.ValidateAsync(dto);
 
@@ -80,7 +69,7 @@ namespace DesafioDotNET
 				return GenerateResultToken((ApplicationUser)cache, signingConfigurations, tokenConfigurations, response);
 			}
 
-			var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, true, false);
+			var result = await _service.SignInAsync(dto.Email, dto.Password);
 
 			if (result.Succeeded)
 			{
@@ -93,7 +82,7 @@ namespace DesafioDotNET
 				await userService.UpdateAsync(user, user.Id);
 
 				var response = this._mapper.Map<ApplicationUserDto>(user);
-				this._service.SaveCache(user.Email, user);
+				this._redis.SaveCache(user.Email, user);
 				return GenerateResultToken(user, signingConfigurations, tokenConfigurations, response);
 			}
 			return UnprocessableEntity(new { message = "Invalid e-mail or password", statusCode = 422 });
@@ -103,7 +92,7 @@ namespace DesafioDotNET
 		[HttpPost("me")]
 		public async Task<IActionResult> Me([FromQuery(Name = "email")] string email, [FromServices] IApplicationUserService userService)
 		{
-			var cache = this._service.GetCache(email);
+			var cache = this._redis.GetCache(email);
 			if (!cache.IsNull())
 			{
 				var response = this._mapper.Map<ApplicationUserDto>(cache);
@@ -119,6 +108,43 @@ namespace DesafioDotNET
 			}
 
 			return BadRequest();
+		}
+
+		[UserIdentityValidatorsMiddleware, Authorize("Bearer")]
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> ExcludeAccountAsync([FromRoute] long id)
+		{
+			var account = await this._service.GetByIdAsync(id);
+			var result = await this._service.DeleteAsync(id);
+			if (result.Equals(1))
+			{
+				this._redis.DeleteCache(account.Email);
+				return Ok();
+			}
+			return BadRequest();
+		}
+
+		[UserIdentityValidatorsMiddleware, Authorize("Bearer")]
+		[HttpPut("password")]
+		public async Task<IActionResult> ChangePassword([FromBody] ApplicationUserChangePassword dto)
+		{
+			var user = await this._service.ChangePasswordAsync(dto.Email, dto.CurrentPassword, dto.NewPassword);
+
+			this._redis.UpdateCache(user.Email, user);
+
+			return Ok();
+		}
+
+		[UserIdentityValidatorsMiddleware, Authorize("Bearer")]
+		[HttpPut("email")]
+		public async Task<IActionResult> ChangeEmail([FromBody] ApplicationUserChangeEmailDto dto)
+		{
+			var user = await this._service.ChangeEmailAsync(dto.CurrentEmail, dto.NewEmail);
+
+			this._redis.DeleteCache(dto.CurrentEmail);
+			this._redis.SaveCache(dto.CurrentEmail, user);
+
+			return Ok();
 		}
 
 		private IActionResult GenerateResultToken(ApplicationUser user, SigningConfigurations signingConfigurations, TokenConfigurations tokenConfigurations, ApplicationUserDto dto)

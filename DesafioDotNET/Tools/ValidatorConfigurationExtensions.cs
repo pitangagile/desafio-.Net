@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Domains;
+using FluentValidation;
 using Mapping;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,8 +13,10 @@ namespace DesafioDotNET
             services.AddTransient<IValidator<SigninDto>, SigninDtoValidator>();
             services.AddTransient<IValidator<SignupDto>, SignupDtoValidator>();
             services.AddTransient<IValidator<PhoneDto>, PhoneDtoValidator>();
+			services.AddTransient<IValidator<ApplicationUser>, ApplicationUserValidator>();
+			services.AddTransient<IValidator<Phone>, PhoneValidator>();
 
-            return services;
+			return services;
         }
     }
 }

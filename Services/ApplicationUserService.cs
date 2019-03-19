@@ -1,7 +1,9 @@
 ﻿using Domains;
 using FluentValidation;
 using Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -13,260 +15,58 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-	public class ApplicationUserService : BaseServiceRedis<ApplicationUser>, IApplicationUserService
+	public class ApplicationUserService : BaseService<ApplicationUser>, IApplicationUserService
 	{
-		protected readonly DbContext _dbContext;
-		private bool disposed = false;
-		
-		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory) : base(connectionFactory)
+		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly SignInManager<ApplicationUser> _signInManager;
+
+		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory, UserManager<ApplicationUser> userManager,
+			SignInManager<ApplicationUser> signInManager, IValidator<ApplicationUser> validator) : base(dbContext, connectionFactory, validator)
 		{
-			_dbContext = dbContext;
+			this._userManager = userManager;
+			this._signInManager = signInManager;
 		}
 
-		public int Count()
+		public async Task<IdentityResult> CreateAsync(ApplicationUser user)
 		{
-			return _dbContext.Set<ApplicationUser>().Count();
+			user.CreatedAt = DateTime.Now;
+			IdentityResult result = await _userManager.CreateAsync(user, user.Password);
+
+			return result;
 		}
 
-		public async Task<int> CountAsync()
+		public async Task<SignInResult> SignInAsync(string email, string password)
 		{
-			return await _dbContext.Set<ApplicationUser>().CountAsync();
+			var result = await _signInManager.PasswordSignInAsync(email, password, true, false);
+
+			return result;
 		}
 
-		public virtual void Delete(ApplicationUser obj)
+		public async Task<ApplicationUser> ChangePasswordAsync(string email, string currentpassword, string newPassword)
 		{
-			ApplicationUser exist = _dbContext.Set<ApplicationUser>().Find(obj.Id);
+			var user = await this._userManager.FindByEmailAsync(email);
+			var result = await this._userManager.ChangePasswordAsync(user, currentpassword, newPassword);
 
-			if (exist != null)
-			{
-				BeforeDelete(obj);
-
-				_dbContext.Set<ApplicationUser>().Update(obj);
-				AfterDelete(obj);
-
-				_dbContext.SaveChanges();
-			}
-		}
-
-		public virtual async Task<int> DeleteAsync(ApplicationUser obj)
-		{
-			ApplicationUser exist = _dbContext.Set<ApplicationUser>().Find(obj.Id);
-
-			if (exist != null)
-			{
-				await BeforeDeleteAsync(obj);
-
-				_dbContext.Set<ApplicationUser>().Update(obj);
-				await AfterDeleteAsync(obj);
+			if (!result.Succeeded) {
+				throw new Exception(JsonConvert.SerializeObject(result.Errors));
 			}
 
-			return await _dbContext.SaveChangesAsync();
+			return user;
 		}
 
-		protected virtual void BeforeDelete(ApplicationUser obj)
+		public async Task<ApplicationUser> ChangeEmailAsync(string currentEmail, string newEmail)
 		{
-		}
+			var user = await this._userManager.FindByEmailAsync(currentEmail);
+			var token = await this._userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+			var result = await this._userManager.ChangeEmailAsync(user, newEmail, token);
 
-		protected virtual void AfterDelete(ApplicationUser obj)
-		{
-		}
-
-		protected virtual Task BeforeDeleteAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
-
-		protected virtual Task AfterDeleteAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!this.disposed)
+			if (!result.Succeeded)
 			{
-				if (disposing)
-				{
-					_dbContext.Dispose();
-				}
-				this.disposed = true;
-			}
-		}
-
-		public virtual ApplicationUser Find(Expression<Func<ApplicationUser, bool>> match)
-		{
-			return _dbContext.Set<ApplicationUser>().SingleOrDefault(match);
-		}
-
-		public ICollection<ApplicationUser> FindAll(Expression<Func<ApplicationUser, bool>> match)
-		{
-			return _dbContext.Set<ApplicationUser>().Where(match).ToList();
-		}
-
-		public async Task<ICollection<ApplicationUser>> FindAllAsync(Expression<Func<ApplicationUser, bool>> match)
-		{
-			return await _dbContext.Set<ApplicationUser>().Where(match).ToListAsync();
-		}
-
-		public virtual async Task<ApplicationUser> FindAsync(Expression<Func<ApplicationUser, bool>> match)
-		{
-			return await _dbContext.Set<ApplicationUser>().SingleOrDefaultAsync(match);
-		}
-
-		public virtual IQueryable<ApplicationUser> FindBy(Expression<Func<ApplicationUser, bool>> predicate)
-		{
-			IQueryable<ApplicationUser> query = _dbContext.Set<ApplicationUser>().Where(predicate);
-
-			return query;
-		}
-
-		public virtual async Task<ICollection<ApplicationUser>> FindByAsync(Expression<Func<ApplicationUser, bool>> predicate)
-		{
-			return await _dbContext.Set<ApplicationUser>().Where(predicate).ToListAsync();
-		}
-
-		public virtual IQueryable<ApplicationUser> GetAll()
-		{
-			return _dbContext.Set<ApplicationUser>();
-		}
-
-		public virtual async Task<ICollection<ApplicationUser>> GetAllAsync()
-		{
-			return await _dbContext.Set<ApplicationUser>().ToListAsync();
-		}
-
-		public virtual IQueryable<ApplicationUser> GetAllIncluding(params Expression<Func<ApplicationUser, object>>[] includeProperties)
-		{
-			IQueryable<ApplicationUser> queryable = GetAll();
-			foreach (Expression<Func<ApplicationUser, object>> includeProperty in includeProperties)
-			{
-				queryable = queryable.Include<ApplicationUser, object>(includeProperty);
+				throw new Exception(JsonConvert.SerializeObject(result.Errors));
 			}
 
-			return queryable;
+			return user;
 		}
 
-		public virtual async Task<ICollection<ApplicationUser>> GetAllIncludingAsync(params Expression<Func<ApplicationUser, object>>[] includeProperties)
-		{
-			ICollection<ApplicationUser> queryable = await GetAllIncluding(includeProperties).ToListAsync();
-
-			return queryable;
-		}
-
-		public virtual ApplicationUser GetById(long id)
-		{
-			return _dbContext.Set<ApplicationUser>().Find(id);
-		}
-
-		public virtual async Task<ApplicationUser> GetByIdAsync(long id)
-		{
-			return await _dbContext.Set<ApplicationUser>().FindAsync(id);
-		}
-
-		public virtual ApplicationUser Insert(ApplicationUser obj)
-		{
-			BeforeInsert(obj);
-			_dbContext.Set<ApplicationUser>().Add(obj);
-			_dbContext.SaveChanges();
-			AfterInsert(obj);
-
-			return obj;
-		}
-
-		public virtual async Task<ApplicationUser> InsertAsync(ApplicationUser obj)
-		{
-			await BeforeInsertAsync(obj);
-			await _dbContext.Set<ApplicationUser>().AddAsync(obj);
-			await _dbContext.SaveChangesAsync();
-			await AfterInsertAsync(obj);
-
-			return obj;
-		}
-
-		protected virtual void BeforeInsert(ApplicationUser obj)
-		{
-		}
-
-		protected virtual void AfterInsert(ApplicationUser obj)
-		{
-		}
-
-		protected virtual Task BeforeInsertAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
-
-		protected virtual Task AfterInsertAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
-
-		public virtual void Save()
-		{
-			_dbContext.SaveChanges();
-		}
-
-		public virtual async Task<int> SaveAsync()
-		{
-			return await _dbContext.SaveChangesAsync();
-		}
-
-		public virtual ApplicationUser Update(ApplicationUser obj, object key)
-		{
-			if (obj == null)
-				return null;
-
-			ApplicationUser exist = _dbContext.Set<ApplicationUser>().Find(key);
-
-			if (exist != null)
-			{
-				BeforeUpdate(exist);
-				_dbContext.Entry(exist).CurrentValues.SetValues(obj);
-				AfterUpdate(obj);
-				_dbContext.SaveChanges();
-			}
-			return exist;
-		}
-
-		public virtual async Task<ApplicationUser> UpdateAsync(ApplicationUser obj, object key)
-		{
-			if (obj == null)
-				return null;
-
-			ApplicationUser exist = await _dbContext.Set<ApplicationUser>().FindAsync(key);
-
-			if (exist != null)
-			{
-				await BeforeUpdateAsync(exist);
-				_dbContext.Entry(exist).CurrentValues.SetValues(obj);
-				await AfterUpdateAsync(obj);
-				await _dbContext.SaveChangesAsync();
-			}
-			return exist;
-		}
-
-		protected virtual void BeforeUpdate(ApplicationUser obj)
-		{
-		}
-
-		protected virtual void AfterUpdate(ApplicationUser obj)
-		{
-		}
-
-		protected virtual Task BeforeUpdateAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
-
-		protected virtual Task AfterUpdateAsync(ApplicationUser obj)
-		{
-			return Task.CompletedTask;
-		}
 	}
 }

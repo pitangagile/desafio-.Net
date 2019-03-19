@@ -8,5 +8,7 @@ namespace Domains
     public class BaseDomain : IBaseDomain
     {
         public long Id { get; set; }
-    }
+
+		public Guid _semaphore { get; set; }
+	}
 }

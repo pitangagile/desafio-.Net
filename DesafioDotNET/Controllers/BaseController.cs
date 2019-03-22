@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Infrastructure;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
 
 namespace DesafioDotNET
 {
+	//https://imasters.com.br/back-end/padroes-de-web-api-parte-01-documentacao-requests-responses
 	[AllowAnonymous]
 	[EnableCors("FrontEnd")]
 	[Produces("application/json")]
-	[Route("api/[controller]")]
+	[Route("api/v1/[controller]")]
 	[ApiController]
 	public class BaseController : Controller
     {

@@ -14,7 +14,7 @@ namespace DesafioDotNET
         public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
         {
             services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<ApplicationMemoryDbContext>()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>

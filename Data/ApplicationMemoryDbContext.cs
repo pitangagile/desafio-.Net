@@ -2,11 +2,10 @@
 using Domains;
 using Mapping;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, long,
+    public class ApplicationMemoryDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, long,
         ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
     {
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
@@ -19,7 +18,7 @@ namespace Data
         public DbSet<ApplicationRoleClaim> ApplicationRoleClaims { get; set; }
         public DbSet<ApplicationUserToken> ApplicationUserTokens { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> context) : base(context)
+        public ApplicationMemoryDbContext(DbContextOptions<ApplicationMemoryDbContext> context) : base(context)
         {
         }
 
@@ -56,5 +55,14 @@ namespace Data
                 b.ToTable("ApplicationRoleClaims");
             });
         }
-    }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			base.OnConfiguring(optionsBuilder);
+
+			//https://imasters.com.br/back-end/advanced-repository-pattern-com-entity-framework-core
+			//optionsBuilder.UseLazyLoadingProxies();
+
+		}
+	}
 }

@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Repository;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Services
 		private readonly SignInManager<ApplicationUser> _signInManager;
 
 		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory, UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager, IValidator<ApplicationUser> validator) : base(dbContext, connectionFactory, validator)
+			SignInManager<ApplicationUser> signInManager, IValidator<ApplicationUser> validator, ApplicationUserRepository repository) : base(dbContext, connectionFactory, validator, repository)
 		{
 			this._userManager = userManager;
 			this._signInManager = signInManager;

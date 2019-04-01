@@ -19,7 +19,7 @@ namespace Repository
 
 		//https://imasters.com.br/back-end/advanced-repository-pattern-com-entity-framework-core
 
-		public virtual async Task<Tuple<IEnumerable<TEntity>, int>> GetAll(int skip, int take, Expression<Func<TEntity, bool>> where, Expression<Func<TEntity, object>> orderBy, bool asNoTracking = true)
+		public virtual async Task<Tuple<IEnumerable<TEntity>, int>> GetAllAsync(int skip, int take, Expression<Func<TEntity, bool>> where, Expression<Func<TEntity, object>> orderBy, bool asNoTracking = true)
 		{
 			var dataBaseCount = await this._dbSet.CountAsync().ConfigureAwait(false);
 			if (asNoTracking)

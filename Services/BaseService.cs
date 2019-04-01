@@ -7,34 +7,37 @@ using FluentValidation;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Repository;
 
 namespace Services
 {
-	public abstract class BaseService<T> : BaseServiceRedis<T>, IServiceCrud<T> where T: class
+	public abstract class BaseService<TEntity> : BaseServiceRedis<TEntity>, IServiceCrud<TEntity> where TEntity : class
 	{
 		protected readonly DbContext _dbContext;
 		private bool disposed = false;
 		private readonly IValidator _validator;
+		private readonly IRepositoryBase<TEntity> _repository;
 
-		public BaseService(DbContext dbContext, IRedisConnectionFactory connectionFactory, IValidator<T> validator) : base(connectionFactory)
+		public BaseService(DbContext dbContext, IRedisConnectionFactory connectionFactory, IValidator<TEntity> validator, IRepositoryBase<TEntity> repository) : base(connectionFactory)
 		{
 			_validator = validator;
 			_dbContext = dbContext;
+			_repository = repository;
 		}
 
 		public int Count()
 		{
-			return _dbContext.Set<T>().Count();
+			return _dbContext.Set<TEntity>().Count();
 		}
 
 		public async Task<int> CountAsync()
 		{
-			return await _dbContext.Set<T>().CountAsync();
+			return await _dbContext.Set<TEntity>().CountAsync();
 		}
 
 		public virtual void Delete(object id)
 		{
-			T finded = _dbContext.Set<T>().Find(id);
+			TEntity finded = _dbContext.Set<TEntity>().Find(id);
 
 			if (finded != null)
 			{
@@ -46,7 +49,7 @@ namespace Services
 
 		public virtual async Task<int> DeleteAsync(object id)
 		{
-			T finded = _dbContext.Set<T>().Find(id);
+			TEntity finded = _dbContext.Set<TEntity>().Find(id);
 
 			if (finded != null)
 			{
@@ -58,20 +61,20 @@ namespace Services
 			return await _dbContext.SaveChangesAsync();
 		}
 
-		protected virtual void BeforeDelete(T obj)
+		protected virtual void BeforeDelete(TEntity obj)
 		{
 		}
 
-		protected virtual void AfterDelete(T obj)
+		protected virtual void AfterDelete(TEntity obj)
 		{
 		}
 
-		protected virtual Task BeforeDeleteAsync(T obj)
+		protected virtual Task BeforeDeleteAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}
 
-		protected virtual Task AfterDeleteAsync(T obj)
+		protected virtual Task AfterDeleteAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}
@@ -94,77 +97,77 @@ namespace Services
 			}
 		}
 
-		public virtual T Find(Expression<Func<T, bool>> match)
+		public virtual TEntity Find(Expression<Func<TEntity, bool>> match)
 		{
-			return _dbContext.Set<T>().SingleOrDefault(match);
+			return _dbContext.Set<TEntity>().SingleOrDefault(match);
 		}
 
-		public ICollection<T> FindAll(Expression<Func<T, bool>> match)
+		public ICollection<TEntity> FindAll(Expression<Func<TEntity, bool>> match)
 		{
-			return _dbContext.Set<T>().Where(match).ToList();
+			return _dbContext.Set<TEntity>().Where(match).ToList();
 		}
 
-		public async Task<ICollection<T>> FindAllAsync(Expression<Func<T, bool>> match)
+		public async Task<ICollection<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
 		{
-			return await _dbContext.Set<T>().Where(match).ToListAsync();
+			return await _dbContext.Set<TEntity>().Where(match).ToListAsync();
 		}
 
-		public virtual async Task<T> FindAsync(Expression<Func<T, bool>> match)
+		public virtual async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
 		{
-			return await _dbContext.Set<T>().SingleOrDefaultAsync(match);
+			return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
 		}
 
-		public virtual IQueryable<T> FindBy(Expression<Func<T, bool>> predicate)
+		public virtual IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate)
 		{
-			IQueryable<T> query = _dbContext.Set<T>().Where(predicate);
+			IQueryable<TEntity> query = _dbContext.Set<TEntity>().Where(predicate);
 
 			return query;
 		}
 
-		public virtual async Task<ICollection<T>> FindByAsync(Expression<Func<T, bool>> predicate)
+		public virtual async Task<ICollection<TEntity>> FindByAsync(Expression<Func<TEntity, bool>> predicate)
 		{
-			return await _dbContext.Set<T>().Where(predicate).ToListAsync();
+			return await _dbContext.Set<TEntity>().Where(predicate).ToListAsync();
 		}
 
-		public IQueryable<T> GetAll()
+		public IQueryable<TEntity> GetAll()
 		{
-			return _dbContext.Set<T>();
+			return _dbContext.Set<TEntity>();
 		}
 
-		public virtual async Task<ICollection<T>> GetAllAsync()
+		public virtual async Task<ICollection<TEntity>> GetAllAsync()
 		{
-			return await _dbContext.Set<T>().ToListAsync();
+			return await _dbContext.Set<TEntity>().ToListAsync();
 		}
 
-		public IQueryable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties)
+		public IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties)
 		{
-			IQueryable<T> queryable = GetAll();
-			foreach (Expression<Func<T, object>> includeProperty in includeProperties)
+			IQueryable<TEntity> queryable = GetAll();
+			foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
 			{
-				queryable = queryable.Include<T, object>(includeProperty);
+				queryable = queryable.Include<TEntity, object>(includeProperty);
 			}
 
 			return queryable;
 		}
 
-		public virtual async Task<ICollection<T>> GetAllIncludingAsync(params Expression<Func<T, object>>[] includeProperties)
+		public virtual async Task<ICollection<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
 		{
-			ICollection<T> queryable = await GetAllIncluding(includeProperties).ToListAsync();
+			ICollection<TEntity> queryable = await GetAllIncluding(includeProperties).ToListAsync();
 
 			return queryable;
 		}
 
-		public virtual T GetById(object id)
+		public virtual TEntity GetById(object id)
 		{
-			return _dbContext.Set<T>().Find(id);
+			return _dbContext.Set<TEntity>().Find(id);
 		}
 
-		public virtual async Task<T> GetByIdAsync(object id)
+		public virtual async Task<TEntity> GetByIdAsync(object id)
 		{
-			return await _dbContext.Set<T>().FindAsync(id);
+			return await _dbContext.Set<TEntity>().FindAsync(id);
 		}
 
-		public virtual T Insert(T obj)
+		public virtual TEntity Insert(TEntity obj)
 		{
 			var validated = _validator.Validate(obj);
 			if (!validated.IsValid)
@@ -172,14 +175,14 @@ namespace Services
 				throw new Exception(JsonConvert.SerializeObject(validated.Errors));
 			}
 			BeforeInsert(obj);
-			_dbContext.Set<T>().Add(obj);
+			_dbContext.Set<TEntity>().Add(obj);
 			_dbContext.SaveChanges();
 			AfterInsert(obj);
 
 			return obj;
 		}
 
-		public virtual async Task<T> InsertAsync(T obj)
+		public virtual async Task<TEntity> InsertAsync(TEntity obj)
 		{
 			var validated = await _validator.ValidateAsync(obj);
 			if (!validated.IsValid)
@@ -188,27 +191,27 @@ namespace Services
 			}
 
 			await BeforeInsertAsync(obj);
-			await _dbContext.Set<T>().AddAsync(obj);
+			await _dbContext.Set<TEntity>().AddAsync(obj);
 			await _dbContext.SaveChangesAsync();
 			await AfterInsertAsync(obj);
 
 			return obj;
 		}
 
-		protected virtual void BeforeInsert(T obj)
+		protected virtual void BeforeInsert(TEntity obj)
 		{
 		}
 
-		protected virtual void AfterInsert(T obj)
+		protected virtual void AfterInsert(TEntity obj)
 		{
 		}
 
-		protected virtual Task BeforeInsertAsync(T obj)
+		protected virtual Task BeforeInsertAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}
 
-		protected virtual Task AfterInsertAsync(T obj)
+		protected virtual Task AfterInsertAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}
@@ -223,7 +226,7 @@ namespace Services
 			return await _dbContext.SaveChangesAsync();
 		}
 
-		public virtual T Update(T obj, object key)
+		public virtual TEntity Update(TEntity obj, object key)
 		{
 			if (obj == null)
 				return null;
@@ -234,7 +237,7 @@ namespace Services
 				throw new Exception(JsonConvert.SerializeObject(validated.Errors));
 			}
 
-			T exist = _dbContext.Set<T>().Find(key);
+			TEntity exist = _dbContext.Set<TEntity>().Find(key);
 
 			if (exist != null)
 			{
@@ -250,7 +253,7 @@ namespace Services
 			return exist;
 		}
 
-		public virtual async Task<T> UpdateAsync(T obj, object key)
+		public virtual async Task<TEntity> UpdateAsync(TEntity obj, object key)
 		{
 			if (obj == null)
 				return null;
@@ -261,7 +264,7 @@ namespace Services
 				throw new Exception(JsonConvert.SerializeObject(validated.Errors));
 			}
 
-			T exist = await _dbContext.Set<T>().FindAsync(key);
+			TEntity exist = await _dbContext.Set<TEntity>().FindAsync(key);
 
 			if (exist != null)
 			{
@@ -277,20 +280,20 @@ namespace Services
 			return exist;
 		}
 
-		protected virtual void BeforeUpdate(T obj)
+		protected virtual void BeforeUpdate(TEntity obj)
 		{
 		}
 
-		protected virtual void AfterUpdate(T obj)
+		protected virtual void AfterUpdate(TEntity obj)
 		{
 		}
 
-		protected virtual Task BeforeUpdateAsync(T obj)
+		protected virtual Task BeforeUpdateAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}
 
-		protected virtual Task AfterUpdateAsync(T obj)
+		protected virtual Task AfterUpdateAsync(TEntity obj)
 		{
 			return Task.CompletedTask;
 		}

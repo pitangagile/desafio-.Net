@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Data
@@ -83,6 +84,14 @@ namespace Data
 				});
 
 			return serviceCollection;
+		}
+
+		public static IServiceCollection UseRegisterDbContext(this IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddDbContextPool<ApplicationMemoryDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
+			services.AddDbContextPool<ApplicationPGDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
+
+			return services;
 		}
 	}
 }

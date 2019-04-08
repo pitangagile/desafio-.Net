@@ -18,17 +18,18 @@ namespace DesafioDotNET
 {
 	public class Startup
 	{
+		public IConfiguration Configuration { get; }
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
 		}
 
-		public IConfiguration Configuration { get; }
-
 		public IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContextPool<ApplicationMemoryDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
-			services.AddScoped<DbContext, ApplicationMemoryDbContext>();
+			services.AddDbContextPool<ApplicationPGDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
+			//services.AddScoped<DbContext, ApplicationMemoryDbContext>();
 			services.AddIdentityConfiguration();
 			services.AddTokenConfiguration(Configuration);
 			services.AddCors(options =>
@@ -38,15 +39,7 @@ namespace DesafioDotNET
 			services.AddValidators();
 			services.AddGlobalExceptionHandlerMiddleware();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-			services.Configure<RedisConfiguration>(Configuration.GetSection("Redis"));
-
-			services.AddDistributedRedisCache(options =>
-			{
-				options.InstanceName = Configuration.GetValue<string>("Redis:Name");
-				options.Configuration = Configuration.GetValue<string>("Redis:Host");
-			});
-
-			services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+			services.AddRedis(Configuration);
 			services.AddSession();
 
 			var configMapper = new MapperConfiguration(c =>

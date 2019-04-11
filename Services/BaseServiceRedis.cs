@@ -21,12 +21,12 @@ namespace Services
 		private PropertyInfo[] Properties => this._type.GetProperties();
 		private Type _type => typeof(T);
 		protected readonly IRedisConnectionFactory _connectionFactory;
-		internal readonly IDatabase _dB;
+		internal readonly IDatabase _dBRedis;
 
 		public BaseServiceRedis(IRedisConnectionFactory connectionFactory)
 		{
-			_connectionFactory = connectionFactory;
-			_dB = _connectionFactory.Connection().GetDatabase();
+			this._connectionFactory = connectionFactory;
+			this._dBRedis = this._connectionFactory.Connection().GetDatabase();
 		}
 
 		/// <summary>
@@ -56,13 +56,13 @@ namespace Services
 			if (string.IsNullOrWhiteSpace(key) || key.Contains(":")) throw new ArgumentException("invalid key");
 
 			key = this.GenerateKey(key);
-			_dB.KeyDelete(key);
+			_dBRedis.KeyDelete(key);
 		}
 
 		public object GetCache(string key)
 		{
 			key = this.GenerateKey(key);
-			var hash = _dB.StringGet(key);
+			var hash = _dBRedis.StringGet(key);
 
 			if (hash.IsNull)
 			{
@@ -78,18 +78,18 @@ namespace Services
 				var hash = this.GenerateHash(obj);
 				key = this.GenerateKey(key);
 
-				if (_dB.HashLength(key) == 0)
+				if (_dBRedis.HashLength(key) == 0)
 				{
-					_dB.StringSet(key, hash);
+					_dBRedis.StringSet(key, hash);
 				}
 				else
 				{
 					var props = this.Properties;
 					foreach (var item in props)
 					{
-						if (_dB.HashExists(key, item.Name))
+						if (_dBRedis.HashExists(key, item.Name))
 						{
-							_dB.HashIncrement(key, item.Name, Convert.ToInt32(item.GetValue(obj)));
+							_dBRedis.HashIncrement(key, item.Name, Convert.ToInt32(item.GetValue(obj)));
 						}
 					}
 				}

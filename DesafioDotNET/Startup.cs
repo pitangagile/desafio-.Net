@@ -28,7 +28,7 @@ namespace DesafioDotNET
 		public IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContextPool<ApplicationMemoryDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
-			services.AddDbContextPool<ApplicationPGDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
+			//services.AddDbContextPool<ApplicationPGDbContext>(options => { options.UseInMemoryDatabase("DesafioDotNet"); });
 			//services.AddScoped<DbContext, ApplicationMemoryDbContext>();
 			services.AddIdentityConfiguration();
 			services.AddTokenConfiguration(Configuration);

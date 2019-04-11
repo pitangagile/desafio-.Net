@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Data
 {
 	public abstract class ApplicationDbContext<TContext>: IdentityDbContext<ApplicationUser, ApplicationRole, long,
-		ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken> where TContext : DbContext
+		ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>, IApplicationDbContext where TContext : DbContext
 	{
 		public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 		public DbSet<ApplicationUserPhones> ApplicationUserPhones { get; set; }

@@ -127,7 +127,7 @@ namespace Repository
 			return Task.CompletedTask;
 		}
 
-		public virtual async Task<TEntity> RemoveById(object id)
+		public virtual async Task<TEntity> RemoveByIdAsync(object id)
 		{
 			TEntity finded = await this._dbSet.FindAsync(id);
 

@@ -79,7 +79,7 @@ namespace DesafioDotNET
 					return NotFound(new { message = "User Not Found", statusCode = 404 });
 				}
 				user.LastLogin = DateTime.Now;
-				await userService.UpdateAsync(user, user.Id);
+				await userService.UpdateAsync(user);
 
 				var response = this._mapper.Map<ApplicationUserDto>(user);
 				this._redis.SaveCache(user.Email, user);
@@ -114,9 +114,9 @@ namespace DesafioDotNET
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> ExcludeAccountAsync([FromRoute] long id)
 		{
-			var account = await this._service.GetByIdAsync(id);
-			var result = await this._service.DeleteAsync(id);
-			if (result.Equals(1))
+			var account = await this._service.FindByIdAsync(id);
+			var result = await this._service.RemoveByIdAsync(id);
+			if (result != null)
 			{
 				this._redis.DeleteCache(account.Email);
 				return Ok();

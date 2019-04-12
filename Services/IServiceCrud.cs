@@ -10,42 +10,17 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public interface IServiceCrud<T> : IServiceCrud where T : class
+    public interface IServiceCrud<TEntity> : IServiceCrud where TEntity : class
 	{
-        T Insert(T obj);
+	
+		Task<TEntity> RemoveByIdAsync(object id);
 
-        Task<T> InsertAsync(T obj);
+        Task<TEntity> FindByIdAsync(object id);
 
-        void Delete(object id);
+        IQueryable<TEntity> GetAll();
 
-        Task<int> DeleteAsync(object id);
+        Task<ICollection<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties);
 
-        T Find(Expression<Func<T, bool>> match);
-
-        Task<T> FindAsync(Expression<Func<T, bool>> match);
-
-        ICollection<T> FindAll(Expression<Func<T, bool>> match);
-
-        Task<ICollection<T>> FindAllAsync(Expression<Func<T, bool>> match);
-
-        IQueryable<T> FindBy(Expression<Func<T, bool>> predicate);
-
-        Task<ICollection<T>> FindByAsync(Expression<Func<T, bool>> predicate);
-
-        T GetById(object id);
-
-        Task<T> GetByIdAsync(object id);
-
-        IQueryable<T> GetAll();
-
-        Task<ICollection<T>> GetAllAsync();
-
-        IQueryable<T> GetAllIncluding(params Expression<Func<T, object>> [] includeProperties);
-
-        Task<ICollection<T>> GetAllIncludingAsync(params Expression<Func<T, object>>[] includeProperties);
-
-        T Update(T obj, object key);
-
-        Task<T> UpdateAsync(T obj, object key);
+        Task UpdateAsync(TEntity obj);
 	}
 }

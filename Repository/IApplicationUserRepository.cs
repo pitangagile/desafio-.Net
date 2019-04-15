@@ -5,7 +5,7 @@ using Domains;
 
 namespace Repository
 {
-	public interface IApplicationUserService: IRepositoryBase<ApplicationUser>
+	public interface IApplicationUserRepository: IRepositoryBase<ApplicationUser>
 	{
 	}
 }

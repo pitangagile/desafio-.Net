@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-	public class ApplicationUserRepository: RepositoryBase<ApplicationUser, ApplicationMemoryDbContext>, IApplicationUserService
+	public class ApplicationUserRepository: RepositoryBase<ApplicationUser, ApplicationMemoryDbContext>, IApplicationUserRepository
 	{
 		public ApplicationUserRepository(ApplicationMemoryDbContext context) : base(context)
 		{

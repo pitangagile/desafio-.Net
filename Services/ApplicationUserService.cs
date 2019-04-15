@@ -22,7 +22,7 @@ namespace Services
 		private readonly SignInManager<ApplicationUser> _signInManager;
 
 		public ApplicationUserService(DbContext dbContext, IRedisConnectionFactory connectionFactory, UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager, IValidator<ApplicationUser> validator, ApplicationUserRepository repository) : base(connectionFactory, validator, repository)
+			SignInManager<ApplicationUser> signInManager, IValidator<ApplicationUser> validator, IApplicationUserRepository repository) : base(connectionFactory, validator, repository)
 		{
 			this._userManager = userManager;
 			this._signInManager = signInManager;

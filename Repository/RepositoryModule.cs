@@ -12,8 +12,7 @@ namespace Repository
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<ApplicationUserRepository>().As<IApplicationUserService>().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-			builder.RegisterType<ApplicationUserRepository>().As<RepositoryBase<ApplicationUser, ApplicationDbContext<DbContext>>>().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+			builder.RegisterType<ApplicationUserRepository>().AsSelf().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
 
 			base.Load(builder);
 		}

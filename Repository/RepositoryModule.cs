@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Autofac;
-using Data;
-using Domains;
-using Microsoft.EntityFrameworkCore;
+﻿using Autofac;
 
 namespace Repository
 {

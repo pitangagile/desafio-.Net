@@ -15,11 +15,11 @@ using StackExchange.Redis;
 
 namespace Services
 {
-	public abstract class BaseServiceRedis<T> where T : class
+	public abstract class BaseServiceRedis<TEntity> where TEntity : class
 	{
 		private string Name => this._type.Name;
 		private PropertyInfo[] Properties => this._type.GetProperties();
-		private Type _type => typeof(T);
+		private Type _type => typeof(TEntity);
 		protected readonly IRedisConnectionFactory _connectionFactory;
 		internal readonly IDatabase _dBRedis;
 
@@ -39,14 +39,14 @@ namespace Services
 			return string.Concat(key.ToLower(), ":", this.Name.ToLower());
 		}
 
-		private string GenerateHash(T obj)
+		private string GenerateHash(TEntity obj)
 		{
 			return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 		}
 
-		private T MapFromHash(string hash)
+		private TEntity MapFromHash(string hash)
 		{
-			var obj = JsonConvert.DeserializeObject<T>(hash, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+			var obj = JsonConvert.DeserializeObject<TEntity>(hash, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 
 			return obj;
 		}
@@ -71,7 +71,7 @@ namespace Services
 			return this.MapFromHash(hash);
 		}
 
-		public void SaveCache(string key, T obj)
+		public void SaveCache(string key, TEntity obj)
 		{
 			if (obj != null)
 			{
@@ -97,7 +97,7 @@ namespace Services
 			}
 		}
 
-		public void UpdateCache(string key, T obj)
+		public void UpdateCache(string key, TEntity obj)
 		{
 			DeleteCache(key);
 			SaveCache(key, obj);

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-	public abstract class RepositoryBase<TEntity, TContext> where TEntity : class where TContext : DbContext
+	public abstract class RepositoryBase<TEntity, TContext> : IRepositoryBase<TEntity> where TEntity : class where TContext : DbContext
 	{
 		protected readonly ApplicationDbContext<TContext> _dbContext;
 		protected DbSet<TEntity> _dbSet;

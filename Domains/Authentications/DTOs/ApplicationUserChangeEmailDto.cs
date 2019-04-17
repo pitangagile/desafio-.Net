@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mapping
+namespace Domains
 {
 	public class ApplicationUserChangeEmailDto: BaseDto
 	{

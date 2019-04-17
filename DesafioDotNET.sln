@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesafioDotNET", "DesafioDot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domains", "Domains\Domains.csproj", "{2A1A3F73-C3D6-41D6-82EB-271AC05FE1FB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapping", "Mapping\Mapping.csproj", "{76B4402C-3906-4B89-BF26-1913FF69931C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{C33D4858-9435-45C6-ADB0-0E67DA34D3EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{F758A9D5-EB6E-4888-A04C-D0FCD0D9C8EB}"
@@ -17,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{993E8DBB-A90A-4888-8068-06199E1079A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{EE0F5F46-604F-49B0-815F-2D49B8F68650}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{EE0F5F46-604F-49B0-815F-2D49B8F68650}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +31,6 @@ Global
 		{2A1A3F73-C3D6-41D6-82EB-271AC05FE1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A1A3F73-C3D6-41D6-82EB-271AC05FE1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A1A3F73-C3D6-41D6-82EB-271AC05FE1FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76B4402C-3906-4B89-BF26-1913FF69931C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76B4402C-3906-4B89-BF26-1913FF69931C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76B4402C-3906-4B89-BF26-1913FF69931C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76B4402C-3906-4B89-BF26-1913FF69931C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C33D4858-9435-45C6-ADB0-0E67DA34D3EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C33D4858-9435-45C6-ADB0-0E67DA34D3EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C33D4858-9435-45C6-ADB0-0E67DA34D3EF}.Release|Any CPU.ActiveCfg = Release|Any CPU

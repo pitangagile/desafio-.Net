@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Domains;
 
-namespace Mapping
+namespace Infrastructure
 {
     public class ApplicationMapping : Profile
     {

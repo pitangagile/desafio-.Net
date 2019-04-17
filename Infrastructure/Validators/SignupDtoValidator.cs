@@ -1,9 +1,10 @@
-﻿using FluentValidation;
+﻿using Domains;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mapping
+namespace Infrastructure
 {
     public class SignupDtoValidator: AbstractValidator<SignupDto>
     {

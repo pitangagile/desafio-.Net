@@ -2,7 +2,6 @@
 using Domains;
 using FluentValidation;
 using Infrastructure;
-using Mapping;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

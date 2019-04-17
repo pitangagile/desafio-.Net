@@ -4,7 +4,6 @@ using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
 using Data;
 using Infrastructure;
-using Mapping;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

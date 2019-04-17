@@ -75,13 +75,13 @@ namespace Data
 		{
 			//Manage the transaction at level of HTTP request/response
 			//This is done for every request/response
-			serviceCollection.AddScoped(typeof(TransactionFilter), typeof(TransactionFilter));
+			//serviceCollection.AddScoped(typeof(TransactionFilter), typeof(TransactionFilter));
 
-			serviceCollection
-				.AddMvc(setup =>
-				{
-					setup.Filters.AddService<TransactionFilter>(1);
-				});
+			//serviceCollection
+			//	.AddMvc(setup =>
+			//	{
+			//		setup.Filters.AddService<TransactionFilter>(1);
+			//	});
 
 			return serviceCollection;
 		}

@@ -1,4 +1,5 @@
-﻿using Mapping;
+﻿using Domains;
+using Infrastructure;
 using Xunit;
 
 namespace Tests

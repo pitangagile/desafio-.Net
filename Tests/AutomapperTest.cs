@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domains;
-using Mapping;
+using Infrastructure;
 using Xunit;
 
 namespace Tests

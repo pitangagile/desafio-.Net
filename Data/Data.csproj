@@ -5,14 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domains\Domains.csproj" />
-    <ProjectReference Include="..\Mapping\Mapping.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

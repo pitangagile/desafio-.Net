@@ -4,7 +4,7 @@ using System.Text;
 using Domains;
 using FluentValidation;
 
-namespace Mapping
+namespace Infrastructure
 {
 	public class PhoneValidator : AbstractValidator<Phone>
 	{

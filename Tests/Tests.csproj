@@ -23,7 +23,6 @@
     <ProjectReference Include="..\Data\Data.csproj" />
     <ProjectReference Include="..\DesafioDotNET\DesafioDotNET.csproj" />
     <ProjectReference Include="..\Domains\Domains.csproj" />
-    <ProjectReference Include="..\Mapping\Mapping.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 

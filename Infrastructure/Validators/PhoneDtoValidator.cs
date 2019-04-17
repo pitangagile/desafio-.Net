@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+﻿using Domains;
+using FluentValidation;
 
-namespace Mapping
+namespace Infrastructure
 {
     public class PhoneDtoValidator : AbstractValidator<PhoneDto>
     {

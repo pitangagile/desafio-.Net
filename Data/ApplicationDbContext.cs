@@ -1,5 +1,5 @@
 ﻿using Domains;
-using Mapping;
+using Infrastructure;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

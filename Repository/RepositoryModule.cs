@@ -6,9 +6,8 @@ namespace Repository
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<ApplicationUserRepository>().AsSelf().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
-
 			base.Load(builder);
+			builder.RegisterType<ApplicationUserRepository>().AsSelf().InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
 		}
 	}
 }

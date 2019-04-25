@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Domains;
-using FluentValidation;
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Services.Base;
-using StackExchange.Redis;
 
-namespace Services
+namespace Infrastructure
 {
 	public abstract class BaseServiceRedis<TEntity> where TEntity : class
 	{

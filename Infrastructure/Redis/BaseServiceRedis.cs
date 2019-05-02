@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Infrastructure;
 using Newtonsoft.Json;
 
 namespace Infrastructure
@@ -11,12 +10,12 @@ namespace Infrastructure
 		private PropertyInfo[] Properties => this._type.GetProperties();
 		private Type _type => typeof(TEntity);
 		protected readonly IRedisConnectionFactory _connectionFactory;
-		internal readonly IDatabase _dBRedis;
+		//internal readonly IDatabase _dBRedis;
 
 		public BaseServiceRedis(IRedisConnectionFactory connectionFactory)
 		{
 			this._connectionFactory = connectionFactory;
-			this._dBRedis = this._connectionFactory.Connection().GetDatabase();
+			//this._dBRedis = this._connectionFactory.Connection().GetDatabase();
 		}
 
 		/// <summary>
@@ -46,19 +45,20 @@ namespace Infrastructure
 			if (string.IsNullOrWhiteSpace(key) || key.Contains(":")) throw new ArgumentException("invalid key");
 
 			key = this.GenerateKey(key);
-			_dBRedis.KeyDelete(key);
+			//_dBRedis.KeyDelete(key);
 		}
 
 		public object GetCache(string key)
 		{
 			key = this.GenerateKey(key);
-			var hash = _dBRedis.StringGet(key);
+			//var hash = _dBRedis.StringGet(key);
 
-			if (hash.IsNull)
-			{
-				return null;
-			}
-			return this.MapFromHash(hash);
+			//if (hash.IsNull)
+			//{
+			//	return null;
+			//}
+			//return this.MapFromHash(hash);
+			return string.Empty;
 		}
 
 		public void SaveCache(string key, TEntity obj)
@@ -68,21 +68,21 @@ namespace Infrastructure
 				var hash = this.GenerateHash(obj);
 				key = this.GenerateKey(key);
 
-				if (_dBRedis.HashLength(key) == 0)
-				{
-					_dBRedis.StringSet(key, hash);
-				}
-				else
-				{
-					var props = this.Properties;
-					foreach (var item in props)
-					{
-						if (_dBRedis.HashExists(key, item.Name))
-						{
-							_dBRedis.HashIncrement(key, item.Name, Convert.ToInt32(item.GetValue(obj)));
-						}
-					}
-				}
+				//if (_dBRedis.HashLength(key) == 0)
+				//{
+				//	_dBRedis.StringSet(key, hash);
+				//}
+				//else
+				//{
+				//	var props = this.Properties;
+				//	foreach (var item in props)
+				//	{
+				//		if (_dBRedis.HashExists(key, item.Name))
+				//		{
+				//			_dBRedis.HashIncrement(key, item.Name, Convert.ToInt32(item.GetValue(obj)));
+				//		}
+				//	}
+				//}
 
 			}
 		}

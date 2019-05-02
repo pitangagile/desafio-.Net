@@ -21,15 +21,15 @@ namespace Infrastructure
 
 		public static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration Configuration)
 		{
-			services.Configure<RedisConfiguration>(Configuration.GetSection("Redis"));
+			//services.Configure<RedisConfiguration>(Configuration.GetSection("Redis"));
 
-			services.AddDistributedRedisCache(options =>
-			{
-				options.InstanceName = Configuration.GetValue<string>("Redis:Name");
-				options.Configuration = Configuration.GetValue<string>("Redis:Host");
-			});
+			//services.AddDistributedRedisCache(options =>
+			//{
+			//	options.InstanceName = Configuration.GetValue<string>("Redis:Name");
+			//	options.Configuration = Configuration.GetValue<string>("Redis:Host");
+			//});
 
-			services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
+			//services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
 
 			return services;
 		}

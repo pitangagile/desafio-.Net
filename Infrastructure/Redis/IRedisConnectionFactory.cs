@@ -1,8 +1,7 @@
-﻿
-namespace Infrastructure
+﻿namespace Infrastructure
 {
 	public interface IRedisConnectionFactory
 	{
-		ConnectionMultiplexer Connection();
+		//ConnectionMultiplexer Connection();
 	}
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.AspNetCore.ResponseCaching;
 
 namespace Infrastructure
 {
-	public class RedisConfiguration
+	public class RedisResponseOptions: ResponseCachingOptions
 	{
 		public string Host { get; set; }
 		public int Port { get; set; }
